@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Tasks</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    .add-task-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+      min-height: 100vh;
+    }
+
+    .input-container {
+      margin-bottom: 20px;
+      position: sticky;
+      top: 0;
+      background-color: #fff;
+      padding: 10px;
+      z-index: 1;
+    }
+
+    .input-container input {
+      padding: 10px;
+      font-size: 16px;
+      width: 200px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .input-container button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .list-container {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .list-container input {
+      padding: 10px;
+      font-size: 16px;
+      width: 200px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .list-container button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .list-container button:hover {
+      background-color: #c82333;
+    }
+
+    .menu-option {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      text-decoration: none;
+      margin-top: 20px;
+    }
+
+    .menu-option:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div class="add-task-page">
+  <div class="input-container">
+    <input id="list-count-input" type="number" min="1" placeholder="Enter list count">
+    <button id="create-lists-btn">Create Lists</button>
+  </div>
+  <div id="lists-container"></div>
+  <a href="menu.html" class="menu-option">Back to Menu</a>
+</div>
+
+<script>
+  document.getElementById('list-count-input').addEventListener('keyup', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      document.getElementById('create-lists-btn').click();
+    }
+  });
+
+  document.getElementById('create-lists-btn').addEventListener('click', function() {
+    const listCount = parseInt(document.getElementById('list-count-input').value);
+    if (!isNaN(listCount) && listCount >= 1) {
+      document.getElementById('lists-container').innerHTML = '';
+      for (let i = 0; i < listCount; i++) {
+        const listContainer = document.createElement('div');
+        listContainer.className = 'list-container';
+        listContainer.innerHTML = `
+          <input type="text" placeholder="Enter task">
+          <input type="text" placeholder="Enter description">
+          <button class="delete-btn">Delete</button>
+        `;
+        document.getElementById('lists-container').appendChild(listContainer);
+      }
+    } else {
+      alert('Please enter a valid number greater than or equal to 1.');
+    }
+  });
+
+  document.addEventListener('click', function(event) {
+    if (event.target && event.target.classList.contains('delete-btn')) {
+      event.target.parentNode.remove();
+    }
+  });
+</script>
+
+</body>
+</html>
