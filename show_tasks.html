@@ -4,114 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scrollable Tasks with Inputs and Menu</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-    }
-
-    .task {
-      width: 40vw; /* Adjust as needed */
-      height: 40vw; /* Square tasks */
-      background-color: #f0f0f0;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-      margin: 5px;
-    }
-
-    #tasks-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    #load-more-btn {
-      width: 100%;
-      text-align: center;
-      padding: 20px 0;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-size: 18px;
-      position: fixed;
-      bottom: 0;
-    }
-
-    .input-container {
-      margin: 20px auto;
-      text-align: center;
-    }
-
-    .input-container input {
-      padding: 10px;
-      font-size: 16px;
-    }
-
-    .input-container button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-
-    .menu-option {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .menu-option:hover {
-      background-color: #0056b3;
-    }
-  </style>
+  <link rel="stylesheet" href="css/show_tasks.css">
 </head>
 <body>
 
-<div id="tasks-container">
-  <div class="task">Task 1</div>
-  <div class="task">Task 2</div>
-  <div class="task">Task 3</div>
-  <div class="task">Task 4</div>
-  <div class="task">Task 5</div>
-</div>
+<div id="tasks-container"></div>
 
 <button id="load-more-btn">Load More</button>
 
-<div class="input-container">
-  <input type="text" placeholder="Enter task">
-  <input type="text" placeholder="Enter task">
-  <button>Add Task</button>
-</div>
+<a href="settings.html" class="menu-option">Settings</a>
 
-<a href="menu.html" class="menu-option">Menu</a>
+<script src="js/show_tasks.js"></script>
 
-<script>
-  document.getElementById('load-more-btn').addEventListener('click', function() {
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      behavior: 'smooth'
-    });
-  });
-</script>
 
 </body>
 </html>
