@@ -1,12 +1,4 @@
-#happy path
+funkcja load more ktora pobiera dodatkowe taski i wyswietla je na ekranie
 
-w html show_tasks jest możliwosc nacisniecia przycisku edytuj i wtedy mozna edytowac dany task
-
-
-
-
-
-
-
-
+pokazanie historii danego taska
 
