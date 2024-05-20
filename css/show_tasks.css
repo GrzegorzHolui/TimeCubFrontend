@@ -11,6 +11,7 @@ body {
   padding: 20px;
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: relative; /* Ensure relative positioning for absolute child */
 }
 
 h2 {
@@ -163,4 +164,18 @@ button[type="submit"]:hover {
 
 .menu-option:hover {
   background-color: #0056b3;
+}
+
+.add-task-btn {
+  position: fixed;
+  top: 80px; /* Adjust as needed */
+  right: 20px; /* Adjust as needed */
+  padding: 15px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 10%; /* Make it round */
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
