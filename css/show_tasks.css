@@ -34,23 +34,29 @@ label {
 }
 
 input[type="text"],
-input[type="number"] {
+input[type="number"],
+select { /* Added select styling */
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   width: 100%;
 }
 
-button[type="submit"] {
+button[type="submit"],
+.save-btn,
+.close-btn {
   padding: 10px 15px;
   background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  width: 100%;
 }
 
-button[type="submit"]:hover {
+button[type="submit"]:hover,
+.save-btn:hover,
+.close-btn:hover {
   background-color: #0056b3;
 }
 
@@ -108,12 +114,13 @@ button[type="submit"]:hover {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.edit-panel input {
+.edit-panel input,
+.edit-panel select { /* Added select styling */
   margin-bottom: 10px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 100%;
+  width: 95%;
 }
 
 .save-btn,

@@ -1,29 +1,4 @@
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6MSwiaWF0IjoxNzE2MTk4NDQ0LCJleHAiOjE3MTYyNDE2NDQsImlzcyI6Im15LWFwaSIsInN1YiI6IjEifQ.rabxeNrUQGzd5TaHgnpiANknJLE7mTaaVNpKCKFmnzg";
-
-async function saveTaskToServer(taskName) {
-  const url = "http://localhost:3000/add_project";
-  const data = {
-    token: token, name: taskName
-  };
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST', headers: {
-        'Content-Type': 'application/json'
-      }, body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to add project');
-    }
-
-    const responseData = await response.json();
-    return {projectId: responseData.ProjectID}; // Assuming the response contains ProjectID
-  } catch (error) {
-    console.error('Error adding project:', error);
-    throw error; // Re-throw the error so it can be handled by the caller
-  }
-}
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6MSwiaWF0IjoxNzE2Mjc5MjYwLCJleHAiOjE3MTYzMjI0NjAsImlzcyI6Im15LWFwaSIsInN1YiI6IjEifQ.fUu22ovH58kfc3jp-PXBHMVJnLHqWZ5ceQxMyl-zhcc"
 
 async function getUserCubes() {
   const url = "http://localhost:3000/get_user_cubes";
@@ -33,9 +8,11 @@ async function getUserCubes() {
 
   try {
     const response = await fetch(url, {
-      method: 'POST', headers: {
+      method: 'POST',
+      headers: {
         'Content-Type': 'application/json'
-      }, body: JSON.stringify(data)
+      },
+      body: JSON.stringify(data)
     });
 
     if (!response.ok) {
@@ -44,16 +21,20 @@ async function getUserCubes() {
 
     const userCubes = await response.json();
 
-    // Mapowanie do tablicy Mac
-    const macAddresses = userCubes.map(cube => cube.Mac);
+    // Mapujemy odpowiedź JSON tylko do potrzebnych pól
+    const cubesData = userCubes.map(cube => ({
+      Mac: cube.Mac,
+      Cube_users_ID: cube.Cube_users_ID
+    }));
 
-    return macAddresses;
+    return cubesData;
 
   } catch (error) {
     console.error('Error fetching user cubes:', error);
     throw error; // Ponowne rzucenie błędu dla obsługi przez wywołującego
   }
 }
+
 
 
 // function setProjectActive(projectId, cubeId, cubeMac, side) {
@@ -133,7 +114,7 @@ class Task {
     return taskDiv;
   }
 
-  showEditPanel(taskDiv) {
+  async showEditPanel(taskDiv) {
     let overlay = document.querySelector('.overlay');
     if (!overlay) {
       overlay = document.createElement('div');
@@ -147,25 +128,49 @@ class Task {
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.value = this.Name;
-    nameInput.placeholder = 'name of Task'
+    nameInput.placeholder = 'name of Task';
     editPanel.appendChild(nameInput);
+
+
+    const macSelect = document.createElement('select');
+    macSelect.id = 'macSelect';
+    macSelect.placeholder = 'cube MAC';
+
+
+
+    // Populate options from tab array
+    const tab = [];
+
+    try {
+      const macAddresses = await getUserCubes();
+      console.log('Mac Addresses:', macAddresses);
+      tab.push(...macAddresses);
+
+      tab.forEach(mac => {
+        const option = document.createElement('option');
+        option.value = mac.Mac
+        option.textContent = mac.Mac
+        macSelect.appendChild(option);
+      });
+
+    } catch (error) {
+      console.error('Failed to fetch user cubes:', error);
+      // Handle error fetching user cubes
+    }
+
+    editPanel.appendChild(macSelect);
 
     const cubeIDInput = document.createElement('input');
     cubeIDInput.type = 'text';
-    cubeIDInput.value = this.CubeID;
-    cubeIDInput.placeholder = 'cube id'
+    cubeIDInput.value = ''
+    cubeIDInput.placeholder = 'cube id';
     editPanel.appendChild(cubeIDInput);
 
-    const macCube = document.createElement('input');
-    macCube.type = 'text';
-    macCube.value = "";
-    macCube.placeholder = 'cube MAC'
-    editPanel.appendChild(macCube);
 
     const sideInput = document.createElement('input');
     sideInput.type = 'text';
     sideInput.value = this.Side;
-    sideInput.placeholder = 'wall of cube'
+    sideInput.placeholder = 'wall of cube';
     editPanel.appendChild(sideInput);
 
     const saveBtn = document.createElement('button');
@@ -173,31 +178,16 @@ class Task {
     saveBtn.classList.add('save-btn');
 
     saveBtn.addEventListener('click', async () => {
-      // this.Name = nameInput.value;
-      // this.CubeID = cubeIDInput.value;
-      // this.Side = sideInput.value;
-      // this.updateTask(taskDiv);
-      // document.body.removeChild(editPanel);
-      // overlay.style.display = 'none';
+      const newName = nameInput.value;
+      const newCubeID = cubeIDInput.value;
+      const newSide = sideInput.value;
+      this.Name = newName;
+      this.CubeID = newCubeID;
+      this.Side = newSide;
+      this.updateTask(taskDiv);
 
-      let macTabel = []
-      getUserCubes()
-        .then(macAddresses => {
-          console.log('Mac Addresses:', macAddresses);
-          macTabel.push(macAddresses)
-          // Tutaj możesz dalej przetwarzać adresy MAC
-        })
-        .catch(error => {
-          console.error('Failed to fetch user cubes:', error);
-          // Obsługa błędu pobierania danych użytkownika
-        });
-
-      console.log(macTabel)
-
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!! tutaj funkcja settaaaaaaaaaaaaa !!!!!!!!
-
-
+      document.body.removeChild(editPanel);
+      overlay.style.display = 'none';
     });
 
     editPanel.appendChild(saveBtn);
@@ -275,7 +265,7 @@ class TaskManager {
           console.log(side)
           console.log(name)
           console.log(time)
-          this.addTask(ProjectID, name, cubeID, side, time);
+          this.addTask(ProjectID, name, cubeID, side, 50);
         });
         this.renderTasks();
       })
