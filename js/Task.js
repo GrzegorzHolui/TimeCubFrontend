@@ -61,40 +61,66 @@ class Task {
     nameInput.placeholder = 'name of Task';
     editPanel.appendChild(nameInput);
 
+    const cubeIdSelect = document.createElement('select');
+    cubeIdSelect.id = 'cubeIdSelect';
+    cubeIdSelect.placeholder = 'cube ID';
 
     const macSelect = document.createElement('select');
     macSelect.id = 'macSelect';
-    macSelect.placeholder = 'cube MAC';
+    macSelect.placeholder = 'MAC Address';
 
+    const cubeIdToMacMap = {};
 
-    // Populate options from tab array
-    const tab = [];
-    // wyciagnij to do funkcji
-    try {
-      const macAddresses = await getUserCubes();
-      console.log('Mac Addresses:', macAddresses);
-      tab.push(...macAddresses);
+    async function populateCubeIdSelect() {
+      const tab = [];
+      try {
+        const userCubes = await getUserCubes();
+        console.log('User Cubes:', userCubes);
+        tab.push(...userCubes);
 
-      tab.forEach(mac => {
+        tab.forEach(cube => {
+          const option = document.createElement('option');
+          option.value = cube.Cube_users_ID; // Używamy Cube_users_ID
+          option.textContent = cube.Cube_users_ID; // Wyświetlamy Cube_users_ID
+          cubeIdSelect.appendChild(option);
+
+          // Mapowanie Cube_users_ID do listy Mac
+          cubeIdToMacMap[cube.Cube_users_ID] = cubeIdToMacMap[cube.Cube_users_ID] || [];
+          cubeIdToMacMap[cube.Cube_users_ID].push(cube.Mac);
+        });
+
+        populateMacSelect(cubeIdSelect.value);
+
+      } catch (error) {
+        console.error('Failed to fetch user cubes:', error);
+      }
+    }
+
+    function populateMacSelect(cubeId) {
+      macSelect.innerHTML = '';
+
+      // Pobierz listę Mac dla wybranego Cube_users_ID
+      const macs = cubeIdToMacMap[cubeId] || [];
+
+      // Dodaj opcje do selecta z Macami
+      macs.forEach(mac => {
         const option = document.createElement('option');
-        option.value = mac.Mac
-        option.textContent = mac.Mac
+        option.value = mac;
+        option.textContent = mac;
         macSelect.appendChild(option);
       });
-
-    } catch (error) {
-      console.error('Failed to fetch user cubes:', error);
-      // Handle error fetching user cubes
     }
+
+    populateCubeIdSelect();
+
+    editPanel.appendChild(cubeIdSelect);
 
     editPanel.appendChild(macSelect);
 
-    const cubeIDInput = document.createElement('input');
-    cubeIDInput.type = 'text';
-    cubeIDInput.value = ''
-    cubeIDInput.placeholder = 'cube id';
-    editPanel.appendChild(cubeIDInput);
-
+    cubeIdSelect.addEventListener('change', function () {
+      const selectedCubeId = cubeIdSelect.value;
+      populateMacSelect(selectedCubeId); // Aktualizacja selecta z Macami dla wybranego Cube_users_ID
+    });
 
     const sideInput = document.createElement('input');
     sideInput.type = 'text';
@@ -115,8 +141,7 @@ class Task {
       this.Side = newSide;
       this.updateTask(taskDiv);
 
-      await setProjectActive(this.ProjectID, this.CubeID, macSelect.value, this.Side);
-
+      await setProjectActive(this.ProjectID, this.CubeID, macInput.value, this.Side);
 
       document.body.removeChild(editPanel);
       overlay.style.display = 'none';
