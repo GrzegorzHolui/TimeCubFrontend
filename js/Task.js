@@ -79,7 +79,7 @@ class Task {
         const uniqueCubeIds = new Set();
 
         userCubes.forEach(cube => {
-          uniqueCubeIds.add(cube.Cube_users_ID); // Dodaj Cube_users_ID do zbioru
+          uniqueCubeIds.add(cube.Cube_users_ID);
           cubeIdToMacMap[cube.Cube_users_ID] = cubeIdToMacMap[cube.Cube_users_ID] || [];
           cubeIdToMacMap[cube.Cube_users_ID].push(cube.Mac);
         });
@@ -135,10 +135,10 @@ class Task {
     saveBtn.classList.add('save-btn');
 
     saveBtn.addEventListener('click', async () => {
-      const newName = nameInput.value;
-      const newCubeID = cubeIDInput.value;
+      // const newName = nameInput.value;
+      const newCubeID = cubeIdSelect.value;
       const newSide = sideInput.value;
-      this.Name = newName;
+      // this.Name = newName;
       this.CubeID = newCubeID;
       this.Side = newSide;
       this.updateTask(taskDiv);
