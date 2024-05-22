@@ -72,21 +72,25 @@ class Task {
     const cubeIdToMacMap = {};
 
     async function populateCubeIdSelect() {
-      const tab = [];
       try {
         const userCubes = await getUserCubes();
         console.log('User Cubes:', userCubes);
-        tab.push(...userCubes);
 
-        tab.forEach(cube => {
-          const option = document.createElement('option');
-          option.value = cube.Cube_users_ID; // Używamy Cube_users_ID
-          option.textContent = cube.Cube_users_ID; // Wyświetlamy Cube_users_ID
-          cubeIdSelect.appendChild(option);
+        const uniqueCubeIds = new Set();
 
-          // Mapowanie Cube_users_ID do listy Mac
+        userCubes.forEach(cube => {
+          uniqueCubeIds.add(cube.Cube_users_ID); // Dodaj Cube_users_ID do zbioru
           cubeIdToMacMap[cube.Cube_users_ID] = cubeIdToMacMap[cube.Cube_users_ID] || [];
           cubeIdToMacMap[cube.Cube_users_ID].push(cube.Mac);
+        });
+
+        cubeIdSelect.innerHTML = '';
+
+        uniqueCubeIds.forEach(cubeId => {
+          const option = document.createElement('option');
+          option.value = cubeId;
+          option.textContent = cubeId;
+          cubeIdSelect.appendChild(option);
         });
 
         populateMacSelect(cubeIdSelect.value);
@@ -99,10 +103,8 @@ class Task {
     function populateMacSelect(cubeId) {
       macSelect.innerHTML = '';
 
-      // Pobierz listę Mac dla wybranego Cube_users_ID
       const macs = cubeIdToMacMap[cubeId] || [];
 
-      // Dodaj opcje do selecta z Macami
       macs.forEach(mac => {
         const option = document.createElement('option');
         option.value = mac;
@@ -141,7 +143,7 @@ class Task {
       this.Side = newSide;
       this.updateTask(taskDiv);
 
-      await setProjectActive(this.ProjectID, this.CubeID, macInput.value, this.Side);
+      await setProjectActive(this.ProjectID, this.CubeID, macSelect.value, this.Side);
 
       document.body.removeChild(editPanel);
       overlay.style.display = 'none';
@@ -157,7 +159,6 @@ class Task {
       overlay.style.display = 'none';
 
     });
-
 
     editPanel.appendChild(closeBtn);
 
