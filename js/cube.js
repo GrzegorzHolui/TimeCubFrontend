@@ -12,84 +12,73 @@ class Cube {
 
   toJSON() {
     return {
-      cube_mac: this.cube_mac,
-      cube_id: this.cube_id,
-      token: token
+      cube_mac: this.cube_mac, cube_id: this.cube_id, token: token
     };
   }
 }
 
-class KostkaList {
+class CubeList {
   constructor() {
-    this.kostki = JSON.parse(localStorage.getItem('kostki')) || [];
+    this.cubes = JSON.parse(localStorage.getItem('kostki')) || [];
   }
 
   saveToLocalStorage() {
-    localStorage.setItem('kostki', JSON.stringify(this.kostki));
+    localStorage.setItem('kostki', JSON.stringify(this.cubes));
   }
 
-  addKostka(kostka) {
-    this.kostki.push(kostka);
+  addCube(cube) {
+    this.cubes.push(cube);
     this.saveToLocalStorage();
   }
 
-  displayKostka(newKostka) {
-    const addedKostka = document.getElementById('addedKostka');
-    addedKostka.innerHTML = newKostka.display();
+  displayCube(newKostka) {
+    const addedCube = document.getElementById('addedCube');
+    addedCube.innerHTML = newKostka.display();
   }
 
-  async sendKostkaToServer(kostka) {
+  async sendCubeToServer(Cube) {
     try {
       const response = await fetch('http://localhost:3000/add_cube', {
-        method: 'POST',
-        headers: {
+        method: 'POST', headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(kostka.toJSON())
+        }, body: JSON.stringify(Cube.toJSON())
       });
 
       if (!response.ok) {
-        throw new Error('Failed to add kostka');
+        throw new Error('Failed to add Cube');
       }
       const responseData = await response.json();
       console.log('Response from server:', responseData);
     } catch (error) {
-      console.error('Error sending kostka to server:', error.message);
+      console.error('Error sending Cube to server:', error.message);
     }
   }
 }
 
-window.kostkaList = new KostkaList();
+window.cubeList = new CubeList();
 
 document.addEventListener('DOMContentLoaded', function () {
   const messageDiv = document.getElementById('message');
+  const cubeForm = document.getElementById('CubeForm');
 
-  kostkaForm.addEventListener('submit', async function (event) {
+  cubeForm.addEventListener('submit', async function (event) {
     event.preventDefault();
 
     const macAddress = document.getElementById('macAddress').value;
-    const kostkaId = document.getElementById('kostkaId').value;
-    // const token = localStorage.getItem('Token');
+    const cubeId = document.getElementById('cubeId').value;
 
-    // if (!macAddress || !kostkaId || !token) {
-    //   showMessage('Please fill in all fields and make sure you are logged in', 'error');
-    //   return;
-    // }
-
-    if (!macAddress || !kostkaId) {
+    if (!macAddress || !cubeId) {
       showMessage('Please fill in all fields and make sure you are logged in', 'error');
       return;
     }
+    const newCube = new Cube(macAddress, cubeId);
+    cubeList.addCube(newCube);
+    cubeList.displayCube(newCube);
 
-    // const newKostka = new Cube(macAddress, kostkaId, token);
-    const newKostka = new Cube(macAddress, kostkaId);
-    kostkaList.addKostka(newKostka);
-    kostkaList.displayKostka(newKostka);
-
-    await kostkaList.sendKostkaToServer(newKostka);
+    await cubeList.sendCubeToServer(newCube);
 
     showMessage('Cube added successfully', 'success');
-    kostkaForm.reset();
+    cubeForm.reset();
   });
 
   function showMessage(message, type) {
