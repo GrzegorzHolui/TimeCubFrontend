@@ -48,7 +48,7 @@ class TaskManager {
           console.log(side)
           console.log(name)
           console.log(time)
-          this.addTask(ProjectID, name, cubeID, side, 50);
+          this.addTask(ProjectID, name, cubeID, side, time);
         });
         this.renderTasks();
       })
