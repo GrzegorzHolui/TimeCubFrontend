@@ -1,5 +1,3 @@
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6MSwiaWF0IjoxNzE2Mjc5MjYwLCJleHAiOjE3MTYzMjI0NjAsImlzcyI6Im15LWFwaSIsInN1YiI6IjEifQ.fUu22ovH58kfc3jp-PXBHMVJnLHqWZ5ceQxMyl-zhcc"
-
 class TaskManager {
   constructor() {
     this.tasksContainer = document.getElementById('tasks-container');
@@ -85,13 +83,6 @@ class TaskManager {
   createForm() {
     const form = document.createElement('form');
     form.id = 'taskForm';
-    const nameDiv = this.createFormGroup('Name:', 'name', 'text');
-    form.appendChild(nameDiv);
-
-    const submitBtn = document.createElement('button');
-    submitBtn.type = 'submit';
-    submitBtn.textContent = 'Add Task';
-    form.appendChild(submitBtn);
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -106,25 +97,6 @@ class TaskManager {
     return form;
   }
 
-  createFormGroup(labelText, inputID, inputType, defaultValue = '') {
-    const div = document.createElement('div');
-    div.classList.add('form-group');
-
-    const label = document.createElement('label');
-    label.setAttribute('for', inputID);
-    label.textContent = labelText;
-    div.appendChild(label);
-
-    const input = document.createElement('input');
-    input.type = inputType;
-    input.id = inputID;
-    input.name = inputID;
-    input.value = defaultValue;
-    div.appendChild(input);
-
-    return div;
-  }
-
   handleAddTask() {
     this.addTaskBtn.addEventListener('click', () => {
       let overlay = document.querySelector('.overlay');
@@ -133,7 +105,6 @@ class TaskManager {
         overlay.classList.add('overlay');
         document.body.appendChild(overlay);
       }
-
       const editPanel = document.createElement('div');
       editPanel.classList.add('edit-panel');
 

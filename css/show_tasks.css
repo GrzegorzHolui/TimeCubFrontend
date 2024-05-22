@@ -44,7 +44,8 @@ select { /* Added select styling */
 
 button[type="submit"],
 .save-btn,
-.close-btn {
+.close-btn,
+.login-btn { /* Added login-btn styling */
   padding: 10px 15px;
   background-color: #007bff;
   color: #fff;
@@ -56,11 +57,13 @@ button[type="submit"],
 
 button[type="submit"]:hover,
 .save-btn:hover,
-.close-btn:hover {
+.close-btn:hover,
+.login-btn:hover {
   background-color: #0056b3;
 }
 
 #tasks-container {
+  /*display: none;*/
   display: grid;
   grid-template-columns: repeat(6, 1fr); /* 6 columns layout */
   gap: 10px;
@@ -186,3 +189,11 @@ button[type="submit"]:hover,
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/*#login-container {*/
+/*  display: block;*/
+/*}*/
+
+/*#content-container {*/
+/*  display: none;*/
+/*}*/

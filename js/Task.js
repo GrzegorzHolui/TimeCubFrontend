@@ -67,7 +67,6 @@ class Task {
     macSelect.placeholder = 'cube MAC';
 
 
-
     // Populate options from tab array
     const tab = [];
     // wyciagnij to do funkcji
@@ -116,6 +115,9 @@ class Task {
       this.Side = newSide;
       this.updateTask(taskDiv);
 
+      await setProjectActive(this.ProjectID, this.CubeID, macSelect.value, this.Side);
+
+
       document.body.removeChild(editPanel);
       overlay.style.display = 'none';
     });
@@ -128,7 +130,10 @@ class Task {
     closeBtn.addEventListener('click', () => {
       document.body.removeChild(editPanel);
       overlay.style.display = 'none';
+
     });
+
+
     editPanel.appendChild(closeBtn);
 
     overlay.style.display = 'block';

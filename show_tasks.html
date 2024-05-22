@@ -7,15 +7,61 @@
   <link rel="stylesheet" href="css/show_tasks.css">
 </head>
 <body>
-<div class="container">
+<!--<a href="http://localhost:3000/auth/google">Login with Google</a>-->
+
+<div id="content-container" class="container">
   <h2>Task Manager</h2>
   <a href="settings.html" class="menu-option">Settings</a>
   <button id="add-task-btn" class="add-task-btn">Add Task</button>
   <div id="tasks-container"></div>
   <button id="load-more-btn">Load More</button>
 </div>
+
+<!--<div id="login-container" class="container">-->
+<!--  <button id="login-btn" class="login-btn">Login with Google</button>-->
+<!--</div>-->
+
+<script>
+  const token = localStorage.getItem('token');
+  function getQueryParams() {
+    const params = {};
+    window.location.search.substring(1).split('&').forEach(pair => {
+      const [key, value] = pair.split('=');
+      params[key] = decodeURIComponent(value || '');
+    });
+    return params;
+  }
+
+  // Extract token from URL
+  const params = getQueryParams();
+  if (params.token) {
+    localStorage.setItem('token', params.token);
+    console.log('Token stored:', params.token);
+    window.history.replaceState({}, document.title, '/');
+  }
+
+</script>
 <script src="js/Task.js"></script>
 <script src="js/fetches.js"></script>
 <script src="js/show_tasks_Manager.js"></script>
+
+<!--<script>-->
+
+<!--  document.addEventListener('DOMContentLoaded', function() {-->
+<!--    if (localStorage.getItem('token')) {-->
+<!--      document.getElementById('content-container').style.display = 'block';-->
+<!--      document.getElementById('login-container').style.display = 'none';-->
+<!--      document.getElementById('tasks-container').style.display = 'grid';-->
+<!--    } else {-->
+<!--      document.getElementById('login-container').style.display = 'block';-->
+<!--      document.getElementById('login-btn').addEventListener('click', function() {-->
+<!--        // Add your Google login logic here-->
+<!--        window.location.href = 'http://localhost:3000/auth/google'; // Example redirect to Google login-->
+<!--      });-->
+<!--    }-->
+<!--  });-->
+<!--</script>-->
+
+
 </body>
 </html>

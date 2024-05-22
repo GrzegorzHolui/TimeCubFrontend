@@ -61,7 +61,7 @@ async function saveTaskToServer(taskName) {
 async function setProjectActive(projectId, cubeId, cubeMac, wall) {
   const url = "http://localhost:3000/set_project_active";
   const data = {
-    token: token, project_id: projectId, cube_id: cubeId, cube_mac: cubeMac, side: wall
+    token: token, project_id: projectId, cube_mac: cubeMac, cube_id: cubeId, side: wall
   };
 
   return fetch(url, {
