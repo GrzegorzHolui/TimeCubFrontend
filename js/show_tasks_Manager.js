@@ -39,7 +39,7 @@ class TaskManager {
         // Assuming the response data is an array of projects/tasks
         data.forEach(project => {
           const ProjectID = project.ProjectID; // Replace with actual data fields from your API response
-          const cubeID = project.CubeID; // Replace with actual data fields from your API response
+          const cubeID = project.Cube_users_ID; // Replace with actual data fields from your API response
           const side = project.Side; // Replace with actual data fields from your API response
           const name = project.Name; // Replace with actual data fields from your API response
           const time = project.Time || 0; // Replace with actual data fields from your API response

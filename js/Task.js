@@ -137,7 +137,6 @@ class Task {
           option.textContent = cubeId;
           cubeIdSelect.appendChild(option);
         });
-
         populateMacSelect(cubeIdSelect.value);
 
       } catch (error) {
