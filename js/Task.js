@@ -1,5 +1,4 @@
 class Task {
-
   constructor(ProjectID, CubeID, Side, Name, Time = 0) {
     this.ProjectID = ProjectID;
     this.CubeID = CubeID;
@@ -32,22 +31,35 @@ class Task {
     timeElement.textContent = `Time: ${this.Time}`;
     taskDiv.appendChild(timeElement);
 
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('button-container');
+
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Edit';
     editBtn.classList.add('edit-task-btn');
-    taskDiv.appendChild(editBtn);
+    buttonContainer.appendChild(editBtn);
+
+    const showHistoryBtn = document.createElement('button');
+    showHistoryBtn.textContent = 'History';
+    showHistoryBtn.classList.add('show-history-btn');
+    buttonContainer.appendChild(showHistoryBtn);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.classList.add('delete-task-btn');
+    buttonContainer.appendChild(deleteBtn);
+
+    taskDiv.appendChild(buttonContainer);
 
     editBtn.addEventListener('click', () => {
       this.showEditPanel(taskDiv);
     });
 
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.classList.add('delete-task-btn');
-    taskDiv.appendChild(deleteBtn);
+    showHistoryBtn.addEventListener('click', () => {
+      this.showHistory(this.ProjectID);
+    });
 
     deleteBtn.addEventListener('click', async () => {
-
       const modalOverlay = document.createElement('div');
       modalOverlay.classList.add('modal-overlay');
 
@@ -65,28 +77,63 @@ class Task {
       cancelBtn.textContent = 'No';
       cancelBtn.classList.add('cancel-btn');
 
-      // Dodajemy elementy do modala
       modal.appendChild(modalMessage);
       modal.appendChild(confirmBtn);
       modal.appendChild(cancelBtn);
       modalOverlay.appendChild(modal);
       document.body.appendChild(modalOverlay);
 
-      // Obsługujemy kliknięcie przycisku potwierdzenia
       confirmBtn.addEventListener('click', async () => {
-        await this.deleteTask(taskDiv)
+        await this.deleteTask(taskDiv);
         document.body.removeChild(modalOverlay);
       });
 
-      // Obsługujemy kliknięcie przycisku anulowania
       cancelBtn.addEventListener('click', () => {
         document.body.removeChild(modalOverlay);
       });
-
-
     });
 
     return taskDiv;
+  }
+
+  async showHistory(project_id) {
+    const url = "http://localhost:3000/get_events";
+    const data = { token: token, project_id: project_id };
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch history');
+      }
+
+      const historyData = await response.json();
+      console.log('History Data:', historyData);
+
+      let historyDiv = document.querySelector('.history');
+      if (!historyDiv) {
+        historyDiv = document.createElement('div');
+        historyDiv.classList.add('history');
+        document.body.appendChild(historyDiv);
+      }
+
+      historyDiv.innerHTML = '';
+
+      historyData.forEach(event => {
+        const eventElement = document.createElement('p');
+        eventElement.textContent = `EventID: ${event.EventID}, Name: ${event.Name}, Time: ${event.Time}`;
+        historyDiv.appendChild(eventElement);
+      });
+
+      historyDiv.style.display = 'block';
+
+    } catch (error) {
+      console.error('Error fetching history:', error);
+    }
   }
 
   async showEditPanel(taskDiv) {
@@ -160,12 +207,11 @@ class Task {
     populateCubeIdSelect();
 
     editPanel.appendChild(cubeIdSelect);
-
     editPanel.appendChild(macSelect);
 
     cubeIdSelect.addEventListener('change', function () {
       const selectedCubeId = cubeIdSelect.value;
-      populateMacSelect(selectedCubeId); // Aktualizacja selecta z Macami dla wybranego Cube_users_ID
+      populateMacSelect(selectedCubeId);
     });
 
     const sideInput = document.createElement('input');
@@ -190,7 +236,6 @@ class Task {
       document.body.removeChild(editPanel);
       overlay.style.display = 'none';
     });
-
     editPanel.appendChild(saveBtn);
 
     const closeBtn = document.createElement('button');
@@ -200,7 +245,6 @@ class Task {
       document.body.removeChild(editPanel);
       overlay.style.display = 'none';
     });
-
     editPanel.appendChild(closeBtn);
 
     overlay.style.display = 'block';

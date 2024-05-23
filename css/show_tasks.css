@@ -11,7 +11,6 @@ body {
   padding: 20px;
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  position: relative; /* Ensure relative positioning for absolute child */
 }
 
 h2 {
@@ -35,7 +34,7 @@ label {
 
 input[type="text"],
 input[type="number"],
-select { /* Added select styling */
+select {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -45,7 +44,7 @@ select { /* Added select styling */
 button[type="submit"],
 .save-btn,
 .close-btn,
-.login-btn { /* Added login-btn styling */
+.login-btn {
   padding: 10px 15px;
   background-color: #007bff;
   color: #fff;
@@ -64,36 +63,66 @@ button[type="submit"]:hover,
 
 #tasks-container {
   display: none;
-  /*display: grid;*/
-  grid-template-columns: repeat(6, 1fr); /* 6 columns layout */
+  grid-template-columns: repeat(6, 1fr);
   gap: 10px;
   margin-top: 20px;
 }
 
 .task {
-  background-color: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   padding: 10px;
+  margin: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.task .button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
 }
 
 .task h3 {
   margin: 0 0 10px 0;
 }
 
-.edit-task-btn {
+.show-history-btn,
+.edit-task-btn,
+.delete-task-btn {
   padding: 5px 10px;
-  background-color: #007bff;
-  color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 10px;
+}
+
+.show-history-btn {
+  background-color: #17a2b8;
+  color: #fff;
+  margin: 0 5px;
+}
+
+.show-history-btn:hover {
+  background-color: #138496;
+}
+
+.edit-task-btn {
+  background-color: #007bff;
+  color: #fff;
+  margin: 0 5px;
 }
 
 .edit-task-btn:hover {
   background-color: #0056b3;
+}
+
+.delete-task-btn {
+  background-color: #dc3545;
+  color: #fff;
+  margin: 0 5px;
+}
+
+.delete-task-btn:hover {
+  background-color: #c82333;
 }
 
 .overlay {
@@ -118,7 +147,7 @@ button[type="submit"]:hover,
 }
 
 .edit-panel input,
-.edit-panel select { /* Added select styling */
+.edit-panel select {
   margin-bottom: 10px;
   padding: 10px;
   border: 1px solid #ccc;
@@ -178,14 +207,14 @@ button[type="submit"]:hover,
 
 .add-task-btn {
   position: fixed;
-  top: 80px; /* Adjust as needed */
-  right: 20px; /* Adjust as needed */
+  top: 80px;
+  right: 20px;
   padding: 15px;
   font-size: 16px;
   background-color: #007bff;
   color: #fff;
   border: none;
-  border-radius: 10%; /* Make it round */
+  border-radius: 10%;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -196,14 +225,14 @@ button[type="submit"]:hover,
 
 .refresh-window-btn {
   position: fixed;
-  top: 150px; /* Adjust as needed */
-  right: 20px; /* Adjust as needed */
-  padding:  15px;
+  top: 150px;
+  right: 20px;
+  padding: 15px;
   font-size: 16px;
   background-color: #007bff;
   color: #fff;
   border: none;
-  border-radius: 10%; /* Make it round */
+  border-radius: 10%;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -211,25 +240,6 @@ button[type="submit"]:hover,
 .refresh-window-btn:hover {
   background-color: #0056b3;
 }
-
-
-
-.delete-task-btn {
-  position: relative;
-  left: 40%;
-  padding: 5px 10px;
-  background-color: #dc3545;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.delete-task-btn:hover {
-  background-color: #c82333;
-}
-
 
 #login-container {
   display: block;
@@ -244,19 +254,6 @@ button[type="submit"]:hover,
   top: 20px;
   left: 20px;
   background-color: #f44336;
-  color: white;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.logout-btn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background-color: #f44336;
-  color: white;
   color: #fff;
   border: none;
   padding: 10px;
@@ -267,7 +264,6 @@ button[type="submit"]:hover,
 .logout-btn:hover {
   background-color: #d32f2f;
 }
-
 
 .modal-overlay {
   position: fixed;
@@ -290,7 +286,8 @@ button[type="submit"]:hover,
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.confirm-btn, .cancel-btn {
+.confirm-btn,
+.cancel-btn {
   margin: 10px;
   padding: 10px 20px;
   border: none;
@@ -306,4 +303,20 @@ button[type="submit"]:hover,
 .cancel-btn {
   background: #ccc;
   color: black;
+}
+
+.history {
+  position: fixed;
+  top: 60px;
+  left: 20px;
+  width: 60%;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  display: none;
+  z-index: 1000;
 }
