@@ -47,7 +47,43 @@ class Task {
     taskDiv.appendChild(deleteBtn);
 
     deleteBtn.addEventListener('click', async () => {
-      await this.deleteTask(taskDiv)
+
+      const modalOverlay = document.createElement('div');
+      modalOverlay.classList.add('modal-overlay');
+
+      const modal = document.createElement('div');
+      modal.classList.add('modal');
+
+      const modalMessage = document.createElement('p');
+      modalMessage.textContent = 'Are you sure you want to delete this project?';
+
+      const confirmBtn = document.createElement('button');
+      confirmBtn.textContent = 'Yes';
+      confirmBtn.classList.add('confirm-btn');
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.textContent = 'No';
+      cancelBtn.classList.add('cancel-btn');
+
+      // Dodajemy elementy do modala
+      modal.appendChild(modalMessage);
+      modal.appendChild(confirmBtn);
+      modal.appendChild(cancelBtn);
+      modalOverlay.appendChild(modal);
+      document.body.appendChild(modalOverlay);
+
+      // Obsługujemy kliknięcie przycisku potwierdzenia
+      confirmBtn.addEventListener('click', async () => {
+        await this.deleteTask(taskDiv)
+        document.body.removeChild(modalOverlay);
+      });
+
+      // Obsługujemy kliknięcie przycisku anulowania
+      cancelBtn.addEventListener('click', () => {
+        document.body.removeChild(modalOverlay);
+      });
+
+
     });
 
     return taskDiv;
