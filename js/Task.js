@@ -41,6 +41,15 @@ class Task {
       this.showEditPanel(taskDiv);
     });
 
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.classList.add('delete-task-btn');
+    taskDiv.appendChild(deleteBtn);
+
+    deleteBtn.addEventListener('click', async () => {
+      await this.deleteTask(taskDiv)
+    });
+
     return taskDiv;
   }
 
@@ -135,10 +144,8 @@ class Task {
     saveBtn.classList.add('save-btn');
 
     saveBtn.addEventListener('click', async () => {
-      // const newName = nameInput.value;
       const newCubeID = cubeIdSelect.value;
       const newSide = sideInput.value;
-      // this.Name = newName;
       this.CubeID = newCubeID;
       this.Side = newSide;
       this.updateTask(taskDiv);
@@ -157,7 +164,6 @@ class Task {
     closeBtn.addEventListener('click', () => {
       document.body.removeChild(editPanel);
       overlay.style.display = 'none';
-
     });
 
     editPanel.appendChild(closeBtn);
@@ -173,5 +179,10 @@ class Task {
     nameElement.textContent = this.Name;
     cubeIDElement.textContent = `CubeID: ${this.CubeID}`;
     sideElement.textContent = `Side: ${this.Side}`;
+  }
+
+  async deleteTask(taskDiv) {
+    taskDiv.remove();
+    await removeProject(this.ProjectID);
   }
 }

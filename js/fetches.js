@@ -6,11 +6,9 @@ async function getUserCubes() {
 
   try {
     const response = await fetch(url, {
-      method: 'POST',
-      headers: {
+      method: 'POST', headers: {
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+      }, body: JSON.stringify(data)
     });
 
     if (!response.ok) {
@@ -21,8 +19,7 @@ async function getUserCubes() {
 
     // Mapujemy odpowiedź JSON tylko do potrzebnych pól
     const cubesData = userCubes.map(cube => ({
-      Mac: cube.Mac,
-      Cube_users_ID: cube.Cube_users_ID
+      Mac: cube.Mac, Cube_users_ID: cube.Cube_users_ID
     }));
 
     return cubesData;
@@ -65,11 +62,9 @@ async function setProjectActive(projectId, cubeId, cubeMac, wall) {
   };
 
   return fetch(url, {
-    method: 'POST',
-    headers: {
+    method: 'POST', headers: {
       'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
+    }, body: JSON.stringify(data)
   })
     .then(response => {
       if (!response.ok) {
@@ -86,4 +81,29 @@ async function setProjectActive(projectId, cubeId, cubeMac, wall) {
       console.error('Error adding project:', error);
       throw error; // Re-throw the error so it can be handled by the caller
     });
+}
+
+async function removeProject(project_id) {
+  const url = "http://localhost:3000/remove_project";
+  const data = {
+    token: token, project_id: project_id
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST', headers: {
+        'Content-Type': 'application/json'
+      }, body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add project');
+    }
+
+    const responseData = await response.json();
+    return {projectId: responseData.ProjectID}; // Assuming the response contains ProjectID
+  } catch (error) {
+    console.error('Error adding project:', error);
+    throw error; // Re-throw the error so it can be handled by the caller
+  }
 }
