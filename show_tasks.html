@@ -15,6 +15,7 @@
   <h2>Task Manager</h2>
   <a href="settings.html" class="menu-option">Settings</a>
   <button id="add-task-btn" class="add-task-btn">Add Task</button>
+  <button id="refresh-window-btn" class="refresh-window-btn">Refresh</button>
   <div id="tasks-container"></div>
   <button id="load-more-btn">Load More</button>
 </div>
@@ -64,6 +65,11 @@
       localStorage.removeItem('token');
       window.location.reload();
     });
+
+    document.getElementById('refresh-window-btn').addEventListener('click', function() {
+      window.location.reload();
+    });
+
   });
 </script>
 
