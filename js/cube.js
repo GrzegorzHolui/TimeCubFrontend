@@ -6,8 +6,9 @@ class Cube {
     this.cube_id = cubeId;
   }
 
-  display() {
-    return `<div>MAC Address: ${this.cube_mac}, Kostka ID: ${this.cube_id}, Token: ${token}</div>`;
+  display(action) {
+    const actionText = action === 'add' ? 'dodana' : 'usunięta';
+    return `<div>Kostka o MAC Address: ${this.cube_mac}, Kostka ID: ${this.cube_id} została ${actionText}. Token: ${token}</div>`;
   }
 
   toJSON() {
@@ -16,32 +17,25 @@ class Cube {
     };
   }
 }
-
 class CubeList {
   constructor() {
-    this.cubes = JSON.parse(localStorage.getItem('kostki')) || [];
+    this.cubes = [];
+    this.init();
   }
 
-  saveToLocalStorage() {
-    localStorage.setItem('kostki', JSON.stringify(this.cubes));
+  async init() {
+    this.cubes = await getUserCubes();
+    this.populateSelectOptions();
   }
 
-  addCube(cube) {
-    this.cubes.push(cube);
-    this.saveToLocalStorage();
-  }
-
-  displayCube(newKostka) {
-    const addedCube = document.getElementById('addedCube');
-    addedCube.innerHTML = newKostka.display();
-  }
-
-  async sendCubeToServer(Cube) {
+  async addCube(cube) {
     try {
       const response = await fetch('http://localhost:3000/add_cube', {
-        method: 'POST', headers: {
+        method: 'POST',
+        headers: {
           'Content-Type': 'application/json'
-        }, body: JSON.stringify(Cube.toJSON())
+        },
+        body: JSON.stringify(cube.toJSON())
       });
 
       if (!response.ok) {
@@ -49,39 +43,90 @@ class CubeList {
       }
       const responseData = await response.json();
       console.log('Response from server:', responseData);
+      this.displayCube(cube, 'add');
+      showMessage('Kostka dodana pomyślnie', 'success');
     } catch (error) {
-      console.error('Error sending Cube to server:', error.message);
+      console.error('Error adding Cube to server:', error.message);
+      showMessage('Błąd podczas dodawania kostki', 'error');
     }
   }
 
-//   exp.post('/remove_cube', (req, res) => { // podajesz token, mac kostki i id kostki - usuwasz kostkę
-//   DB.remove_cube(app.get_id_from_token(req.body.token), req.body.cube_mac, req.body.cube_id).then((result) => {
-//   res.send(result);
-// });
-// });
-
-
-async removeCubeFromServer(Cube) {
+  async removeCube(cube) {
     try {
       const response = await fetch('http://localhost:3000/remove_cube', {
-        method: 'POST', headers: {
+        method: 'POST',
+        headers: {
           'Content-Type': 'application/json'
-        }, body: JSON.stringify(Cube.toJSON())
+        },
+        body: JSON.stringify(cube.toJSON())
       });
 
       if (!response.ok) {
-        throw new Error('Failed to add Cube');
+        throw new Error('Failed to remove Cube');
       }
       const responseData = await response.json();
       console.log('Response from server:', responseData);
+      this.displayCube(cube, 'remove');
+      showMessage('Kostka usunięta pomyślnie', 'success');
     } catch (error) {
-      console.error('Error sending Cube to server:', error.message);
+      console.error('Error removing Cube from server:', error.message);
+      showMessage('Błąd podczas usuwania kostki', 'error');
     }
   }
 
+  displayCube(cube, action) {
+    const addedCubeDiv = document.getElementById('addedCube');
+    addedCubeDiv.innerHTML = cube.display(action);
+  }
+
+  populateSelectOptions() {
+    const macSelect = document.getElementById('macSelect');
+    const cubeIdSelect = document.getElementById('cubeIdSelect');
+
+    // Clear existing options
+    macSelect.innerHTML = '<option value="">Select MAC Address</option>';
+    cubeIdSelect.innerHTML = '<option value="">Select Cube ID</option>';
+
+    // Populate macSelect with unique MAC addresses
+    const uniqueMacAddresses = new Set(this.cubes.map(cube => cube.Mac));
+    uniqueMacAddresses.forEach(mac => {
+      const option = document.createElement('option');
+      option.value = mac;
+      option.textContent = mac;
+      macSelect.appendChild(option);
+    });
+
+    // Add event listener to macSelect to update cubeIdSelect
+    macSelect.addEventListener('change', () => {
+      const selectedMac = macSelect.value;
+      this.updateCubeIdOptions(selectedMac);
+    });
+
+    // Initially populate cubeIdSelect based on the first MAC address
+    if (this.cubes.length > 0) {
+      const firstMac = this.cubes[0].Mac;
+      this.updateCubeIdOptions(firstMac);
+    }
+  }
+
+  updateCubeIdOptions(selectedMac) {
+    const cubeIdSelect = document.getElementById('cubeIdSelect');
+    cubeIdSelect.innerHTML = '<option value="">Select Cube ID</option>';
+
+    // Filter cubes by selected MAC address
+    const filteredCubes = this.cubes.filter(cube => cube.Mac === selectedMac);
+
+    // Populate cubeIdSelect with Cube_users_IDs related to selected MAC
+    filteredCubes.forEach(cube => {
+      const option = document.createElement('option');
+      option.value = cube.Cube_users_ID;
+      option.textContent = cube.Cube_users_ID;
+      cubeIdSelect.appendChild(option);
+    });
+  }
 }
 
-window.cubeList = new CubeList();
+const cubeList = new CubeList();
 
 document.addEventListener('DOMContentLoaded', function () {
   const messageDiv = document.getElementById('message');
@@ -99,39 +144,63 @@ document.addEventListener('DOMContentLoaded', function () {
       showMessage('Please fill in all fields and make sure you are logged in', 'error');
       return;
     }
+
     const newCube = new Cube(macAddress, cubeId);
-    cubeList.addCube(newCube);
-    cubeList.displayCube(newCube);
-
-    await cubeList.sendCubeToServer(newCube);
-
-    showMessage('Cube added successfully', 'success');
+    await cubeList.addCube(newCube);
     cubeForm.reset();
   });
-
 
   btnRemoveCube.addEventListener('click', async function (event) {
     event.preventDefault();
 
-    const macAddress = document.getElementById('macAddress').value;
-    const cubeId = document.getElementById('cubeId').value;
+    const macSelect = document.getElementById('macSelect').value;
+    const cubeIdSelect = document.getElementById('cubeIdSelect').value;
 
-    if (!macAddress || !cubeId) {
-      showMessage('Please fill in all fields and make sure you are logged in', 'error');
+    if (!macSelect || !cubeIdSelect) {
+      showMessage('Please select both MAC Address and Cube ID', 'error');
       return;
     }
-    const newCube = new Cube(macAddress, cubeId);
-    cubeList.displayCube(newCube);
 
-    await cubeList.removeCubeFromServer(newCube);
-
-    showMessage('Cube added successfully', 'success');
+    const newCube = new Cube(macSelect, cubeIdSelect);
+    await cubeList.removeCube(newCube);
     cubeForm.reset();
   });
-
 
   function showMessage(message, type) {
     messageDiv.textContent = message;
     messageDiv.className = type;
+    messageDiv.style.display = 'block';
   }
 });
+
+async function getUserCubes() {
+  const url = "http://localhost:3000/get_user_cubes";
+  const data = {
+    token: token
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST', headers: {
+        'Content-Type': 'application/json'
+      }, body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user cubes');
+    }
+
+    const userCubes = await response.json();
+
+    // Mapujemy odpowiedź JSON tylko do potrzebnych pól
+    const cubesData = userCubes.map(cube => ({
+      Mac: cube.Mac, Cube_users_ID: cube.Cube_users_ID
+    }));
+
+    return cubesData;
+
+  } catch (error) {
+    console.error('Error fetching user cubes:', error);
+    throw error; // Ponowne rzucenie błędu dla obsługi przez wywołującego
+  }
+}
