@@ -67,3 +67,12 @@ button:hover {
   border-top: 1px solid #ccc;
   padding-top: 20px;
 }
+
+#Remove-Cube {
+  background-color: #dc3545;
+}
+
+#Remove-Cube:hover {
+  background-color: #dc3545;
+}
+

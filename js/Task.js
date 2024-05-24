@@ -60,31 +60,10 @@ class Task {
     });
 
     deleteBtn.addEventListener('click', async () => {
-      const modalOverlay = document.createElement('div');
-      modalOverlay.classList.add('modal-overlay');
-
-      const modal = document.createElement('div');
-      modal.classList.add('modal');
-
-      const modalMessage = document.createElement('p');
-      modalMessage.textContent = 'Are you sure you want to delete this project?';
-
-      const confirmBtn = document.createElement('button');
-      confirmBtn.textContent = 'Yes';
-      confirmBtn.classList.add('confirm-btn');
-
-      const cancelBtn = document.createElement('button');
-      cancelBtn.textContent = 'No';
-      cancelBtn.classList.add('cancel-btn');
-
-      modal.appendChild(modalMessage);
-      modal.appendChild(confirmBtn);
-      modal.appendChild(cancelBtn);
-      modalOverlay.appendChild(modal);
-      document.body.appendChild(modalOverlay);
-
+      const {modalOverlay, confirmBtn, cancelBtn} = createConfirmationIfUserWantToDelteTask();
       confirmBtn.addEventListener('click', async () => {
-        await this.deleteTask(taskDiv);
+        taskDiv.remove();
+        await removeProject(this.ProjectID);
         document.body.removeChild(modalOverlay);
       });
 
@@ -114,27 +93,73 @@ class Task {
       const historyData = await response.json();
       console.log('History Data:', historyData);
 
-      let historyDiv = document.querySelector('.history');
-      if (!historyDiv) {
-        historyDiv = document.createElement('div');
-        historyDiv.classList.add('history');
-        document.body.appendChild(historyDiv);
+      // Check if there is an existing history container, if so remove it
+      let existingHistoryDiv = document.querySelector('.history');
+      if (existingHistoryDiv) {
+        existingHistoryDiv.remove();
       }
 
-      historyDiv.innerHTML = '';
+      // Create a new history container
+      const historyDiv = document.createElement('div');
+      historyDiv.classList.add('history');
+      historyDiv.style.position = 'fixed';
+      historyDiv.style.top = '10px';
+      historyDiv.style.right = '10px';
+      historyDiv.style.width = '80%';
+      historyDiv.style.height = '400px';
+      historyDiv.style.padding = '10px';
+      historyDiv.style.background = '#f0f0f0';
+      historyDiv.style.border = '1px solid #ccc';
+      historyDiv.style.zIndex = '1000'; // Ensure it's above other content
+      document.body.appendChild(historyDiv);
 
-      historyData.forEach(event => {
-        const eventElement = document.createElement('p');
-        eventElement.textContent = `EventID: ${event.EventID}, Name: ${event.Name}, Time: ${event.Time}`;
-        historyDiv.appendChild(eventElement);
+      // Add a close button to the history container
+      const closeButton = document.createElement('button');
+      closeButton.textContent = 'Close';
+      closeButton.style.position = 'absolute';
+      closeButton.style.top = '5px';
+      closeButton.style.right = '5px';
+      closeButton.style.padding = '5px 10px';
+      closeButton.style.background = '#007bff'; // blue background
+      closeButton.style.color = '#fff'; // white text
+      closeButton.style.border = 'none';
+      closeButton.style.borderRadius = '5px';
+      closeButton.style.cursor = 'pointer';
+      closeButton.addEventListener('click', () => {
+        historyDiv.remove();
+      });
+      historyDiv.appendChild(closeButton);
+
+      // Prepare data for Gantt chart
+      const tasks = historyData.map(event => {
+        const utcTime = new Date(event.Time);
+        const localTime = new Date(utcTime.toLocaleString('en-US', { timeZone: 'Europe/Warsaw' }));
+        const endDate = new Date(localTime.getTime() + 3600000); // Add 1 hour to end time
+
+        return {
+          id: event.EventID,
+          name: event.Name,
+          start: localTime.toISOString().slice(0, 10), // YYYY-MM-DD format
+          end: endDate.toISOString().slice(0, 10), // YYYY-MM-DD format
+          progress: 100,
+        };
       });
 
-      historyDiv.style.display = 'block';
+      // Create an SVG container for the Gantt chart
+      const svgContainer = document.createElement('div');
+      svgContainer.id = 'gantt';
+      svgContainer.style.width = '100%';
+      svgContainer.style.height = '100%';
+      historyDiv.appendChild(svgContainer);
+
+      // Initialize the Gantt chart
+      new Gantt("#gantt", tasks);
 
     } catch (error) {
       console.error('Error fetching history:', error);
     }
   }
+
 
   async showEditPanel(taskDiv) {
     let overlay = document.querySelector('.overlay');
@@ -260,8 +285,30 @@ class Task {
     sideElement.textContent = `Side: ${this.Side}`;
   }
 
-  async deleteTask(taskDiv) {
-    taskDiv.remove();
-    await removeProject(this.ProjectID);
-  }
+}
+
+function createConfirmationIfUserWantToDelteTask() {
+  const modalOverlay = document.createElement('div');
+  modalOverlay.classList.add('modal-overlay');
+
+  const modal = document.createElement('div');
+  modal.classList.add('modal');
+
+  const modalMessage = document.createElement('p');
+  modalMessage.textContent = 'Are you sure you want to delete this project?';
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.textContent = 'Yes';
+  confirmBtn.classList.add('confirm-btn');
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'No';
+  cancelBtn.classList.add('cancel-btn');
+
+  modal.appendChild(modalMessage);
+  modal.appendChild(confirmBtn);
+  modal.appendChild(cancelBtn);
+  modalOverlay.appendChild(modal);
+  document.body.appendChild(modalOverlay);
+  return {modalOverlay, confirmBtn, cancelBtn};
 }

@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Task Manager</title>
   <link rel="stylesheet" href="css/show_tasks.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.5.0/frappe-gantt.css">
 </head>
 <body>
 
 <div id="content-container" class="container">
 
   <button id="logout-btn" class="logout-btn">Logout</button>
-
   <h2>Task Manager</h2>
   <a href="settings.html" class="menu-option">Settings</a>
   <button id="add-task-btn" class="add-task-btn">Add Task</button>
@@ -43,6 +43,9 @@
     window.history.replaceState({}, document.title, '/');
   }
 </script>
+<!--<script src="js/taskHtmlGenerator.js"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.5.0/frappe-gantt.min.js"></script>
+
 <script src="js/Task.js"></script>
 <script src="js/fetches.js"></script>
 <script src="js/show_tasks_Manager.js"></script>
