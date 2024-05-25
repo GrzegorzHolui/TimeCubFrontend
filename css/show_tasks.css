@@ -63,7 +63,7 @@ button[type="submit"]:hover,
 
 #tasks-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Set number of columns */
+  grid-template-columns: repeat(3, 1fr); /* Set number of columns */
   gap: 10px; /* Gap between grid items */
   margin-top: 20px;
 }
@@ -323,7 +323,7 @@ button[type="submit"]:hover,
 
 #unassigned-tasks-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Set number of columns */
+  grid-template-columns: repeat(3, 1fr); /* Set number of columns */
   gap: 10px; /* Gap between grid items */
   margin-top: 20px;
 }

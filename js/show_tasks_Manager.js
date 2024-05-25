@@ -3,9 +3,11 @@ class TaskManager {
     this.tasksContainer = document.getElementById('tasks-container');
     this.unassignedTasksContainer = document.getElementById('unassigned-tasks-container');
     this.addTaskBtn = document.getElementById('add-task-btn');
-    this.loadMoreBtn = document.getElementById('load-more-btn');
-    this.tasks = []
-    this.loadMoreClicked = false;
+    this.loadMoreAssignedBtn = document.getElementById('load-more-assigned-btn');
+    this.loadMoreUnassignedBtn = document.getElementById('load-more-unassigned-btn');
+    this.tasks = [];
+    this.loadMoreAssignedClicked = false;
+    this.loadMoreUnassignedClicked = false;
   }
 
   addTask(ProjectID, name, cubeID = "", side = 0, time = 0) {
@@ -17,15 +19,16 @@ class TaskManager {
     this.tasksContainer.innerHTML = '';
     this.unassignedTasksContainer.innerHTML = '';
 
-    const tasksToShow = this.loadMoreClicked ? this.tasks : this.tasks.slice(0, 6);
-
-    tasksToShow.forEach(task => {
+    const assignedTasksToShow = this.loadMoreAssignedClicked ? this.tasks.filter(task => task.Side !== -1) : this.tasks.filter(task => task.Side !== -1).slice(0, 6);
+    assignedTasksToShow.forEach(task => {
       const taskElement = task.createTaskElement();
-      if (task.Side === -1) {
-        this.unassignedTasksContainer.appendChild(taskElement);
-      } else {
-        this.tasksContainer.appendChild(taskElement);
-      }
+      this.tasksContainer.appendChild(taskElement);
+    });
+
+    const unassignedTasksToShow = this.loadMoreUnassignedClicked ? this.tasks.filter(task => task.Side === -1) : this.tasks.filter(task => task.Side === -1).slice(0, 6);
+    unassignedTasksToShow.forEach(task => {
+      const taskElement = task.createTaskElement();
+      this.unassignedTasksContainer.appendChild(taskElement);
     });
   }
 
@@ -59,11 +62,6 @@ class TaskManager {
         const side = project.Side; // Replace with actual data fields from your API response
         const name = project.Name; // Replace with actual data fields from your API response
         const time = project.Time || 0; // Replace with actual data fields from your API response
-        console.log(ProjectID)
-        console.log(cubeID)
-        console.log(side)
-        console.log(name)
-        console.log(time)
         this.addTask(ProjectID, name, cubeID, side, time);
       });
 
@@ -78,20 +76,14 @@ class TaskManager {
   }
 
   handleLoadMore() {
-    this.loadMoreBtn.addEventListener('click', () => {
-      this.loadMoreClicked = true;
-      const currentTasksCount = this.tasksContainer.children.length;
-      const nextTasks = this.tasks.slice(currentTasksCount, currentTasksCount + 6);
+    this.loadMoreAssignedBtn.addEventListener('click', () => {
+      this.loadMoreAssignedClicked = true;
+      this.renderTasks();
+    });
 
-      nextTasks.forEach(task => {
-        const taskElement = task.createTaskElement();
-        this.tasksContainer.appendChild(taskElement);
-      });
-
-      const lastTaskElement = this.tasksContainer.lastElementChild;
-      if (lastTaskElement) {
-        lastTaskElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      }
+    this.loadMoreUnassignedBtn.addEventListener('click', () => {
+      this.loadMoreUnassignedClicked = true;
+      this.renderTasks();
     });
   }
 
@@ -125,7 +117,7 @@ class TaskManager {
 
       const nameInput = document.createElement('input');
       nameInput.type = 'text';
-      nameInput.placeholder = 'name of Task';
+      nameInput.placeholder = 'Name of Task';
       editPanel.appendChild(nameInput);
 
       const saveBtn = document.createElement('button');
@@ -183,4 +175,3 @@ document.addEventListener('DOMContentLoaded', function () {
   taskManager.handleLoadMore();
   taskManager.handleAddTask();
 });
-
