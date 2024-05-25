@@ -107,3 +107,32 @@ async function removeProject(project_id) {
     throw error; // Re-throw the error so it can be handled by the caller
   }
 }
+
+async function isTokenValid(token) {
+  const url = "http://localhost:3000/get_user_cubes";
+  const data = {
+    token: token
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const responseData = await response.json();
+
+    // Assuming the API returns an object with a success property
+    if (response.ok && responseData.success !== false) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error('Error validating token:', error);
+    return false;
+  }
+}

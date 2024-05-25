@@ -51,17 +51,116 @@
 <script src="js/show_tasks_Manager.js"></script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('token')) {
+  document.addEventListener('DOMContentLoaded', async function () {
+    const token = localStorage.getItem('token');
+
+    if (await isTokenValid(token)) {
+      showContent();
+    } else {
+      showLogin();
+    }
+
+    function showContent() {
       document.getElementById('content-container').style.display = 'block';
       document.getElementById('login-container').style.display = 'none';
       document.getElementById('tasks-container').style.display = 'grid';
-    } else {
+    }
+
+    function showLogin() {
       document.getElementById('login-container').style.display = 'block';
-      document.getElementById('login-btn').addEventListener('click', function() {
-        // Add your Google login logic here
-        window.location.href = 'http://localhost:3000/auth/google'; // Example redirect to Google login
+      document.getElementById('login-btn').addEventListener('click', function () {
+        window.location.href = 'http://localhost:3000/auth/google';
       });
+    }
+
+    async function handleExpiredToken() {
+      localStorage.removeItem('token');
+      showLogin();
+    }
+
+    async function fetchWithToken(url, options) {
+      if (!options.headers) {
+        options.headers = {};
+      }
+      const token = localStorage.getItem('token');
+      options.body = JSON.stringify({ ...JSON.parse(options.body || '{}'), token });
+
+      const response = await fetch(url, options);
+
+      if (response.status === 401 || (response.ok && (await response.json()).code === 101)) { // Token is invalid or expired
+        await handleExpiredToken();
+        throw new Error('Token expired or invalid');
+      } else if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Network response was not ok');
+      }
+    }
+
+    document.getElementById('Add-Cube').addEventListener('click', async function (event) {
+      event.preventDefault();
+
+      const macAddress = document.getElementById('macAddress').value;
+      const cubeId = document.getElementById('cubeId').value;
+
+      if (!macAddress || !cubeId) {
+        showMessage('Please fill in all fields and make sure you are logged in', 'error');
+        return;
+      }
+
+      const newCube = { macAddress, cubeId };
+
+      try {
+        const data = await fetchWithToken('http://localhost:3000/add_cube', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newCube)
+        });
+
+        showMessage('Cube added successfully', 'success');
+        document.getElementById('addedCube').textContent = `Added Cube: ${macAddress}, ${cubeId}`;
+      } catch (error) {
+        console.error('Error adding cube:', error);
+        showMessage('Error adding cube', 'error');
+      }
+    });
+
+    document.getElementById('Remove-Cube').addEventListener('click', async function (event) {
+      event.preventDefault();
+
+      const macAddress = document.getElementById('macAddress').value;
+      const cubeId = document.getElementById('cubeId').value;
+
+      if (!macAddress || !cubeId) {
+        showMessage('Please fill in all fields and make sure you are logged in', 'error');
+        return;
+      }
+
+      const cubeToRemove = { macAddress, cubeId };
+
+      try {
+        const data = await fetchWithToken('http://localhost:3000/remove_cube', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(cubeToRemove)
+        });
+
+        showMessage('Cube removed successfully', 'success');
+        document.getElementById('addedCube').textContent = `Removed Cube: ${macAddress}, ${cubeId}`;
+      } catch (error) {
+        console.error('Error removing cube:', error);
+        showMessage('Error removing cube', 'error');
+      }
+    });
+
+    function showMessage(message, type) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = message;
+      messageDiv.className = type;
     }
 
     document.getElementById('logout-btn').addEventListener('click', function() {
@@ -73,8 +172,38 @@
       window.location.reload();
     });
 
+    async function isTokenValid(token) {
+      const url = "http://localhost:3000/get_user_cubes";
+      const data = {
+        token: token
+      };
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const responseData = await response.json();
+
+        // Assuming the API returns an object with a success property
+        if (response.ok && responseData.success !== false) {
+          return true;
+        } else {
+          return false;
+        }
+      } catch (error) {
+        console.error('Error validating token:', error);
+        return false;
+      }
+    }
   });
 </script>
+
+
 
 </body>
 </html>

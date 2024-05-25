@@ -22,39 +22,48 @@ class TaskManager {
     });
   }
 
-  getTheProjects() {
-    fetch('http://localhost:3000/get_user_projects', {
-      method: 'POST', headers: {
-        'Content-Type': 'application/json'
-      }, body: JSON.stringify({token})
-    })
-      .then(response => {
-        if (!response.ok) {
+  async getTheProjects() {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch('http://localhost:3000/get_user_projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ token })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.code === 101) { // Token invalid code
+          await handleExpiredToken();
+          throw new Error('Token expired or invalid');
+        } else {
           throw new Error('Failed to fetch projects');
         }
-        return response.json();
-        // This returns a promise that resolves with the JSON body
-      })
-      .then(data => {
-        // Assuming the response data is an array of projects/tasks
-        data.forEach(project => {
-          const ProjectID = project.ProjectID; // Replace with actual data fields from your API response
-          const cubeID = project.Cube_users_ID; // Replace with actual data fields from your API response
-          const side = project.Side; // Replace with actual data fields from your API response
-          const name = project.Name; // Replace with actual data fields from your API response
-          const time = project.Time || 0; // Replace with actual data fields from your API response
-          console.log(ProjectID)
-          console.log(cubeID)
-          console.log(side)
-          console.log(name)
-          console.log(time)
-          this.addTask(ProjectID, name, cubeID, side, time);
-        });
-        this.renderTasks();
-      })
-      .catch(error => {
-        console.error('Error fetching projects:', error);
+      }
+
+      const data = await response.json();
+
+      // Assuming the response data is an array of projects/tasks
+      data.forEach(project => {
+        const ProjectID = project.ProjectID; // Replace with actual data fields from your API response
+        const cubeID = project.Cube_users_ID; // Replace with actual data fields from your API response
+        const side = project.Side; // Replace with actual data fields from your API response
+        const name = project.Name; // Replace with actual data fields from your API response
+        const time = project.Time || 0; // Replace with actual data fields from your API response
+        console.log(ProjectID)
+        console.log(cubeID)
+        console.log(side)
+        console.log(name)
+        console.log(time)
+        this.addTask(ProjectID, name, cubeID, side, time);
       });
+
+      this.renderTasks();
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
   }
 
   generateInitialTasks() {
@@ -74,11 +83,10 @@ class TaskManager {
 
       const lastTaskElement = this.tasksContainer.lastElementChild;
       if (lastTaskElement) {
-        lastTaskElement.scrollIntoView({behavior: 'smooth', block: 'end'});
+        lastTaskElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
       }
     });
   }
-
 
   createForm() {
     const form = document.createElement('form');
