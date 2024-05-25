@@ -257,9 +257,10 @@ class Task {
       this.updateTask(taskDiv);
 
       await setProjectActive(this.ProjectID, this.CubeID, macSelect.value, this.Side);
-
       document.body.removeChild(editPanel);
+      taskManager.renderTasks();
       overlay.style.display = 'none';
+
     });
     editPanel.appendChild(saveBtn);
 

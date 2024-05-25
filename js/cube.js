@@ -17,6 +17,7 @@ class Cube {
     };
   }
 }
+
 class CubeList {
   constructor() {
     this.cubes = [];
@@ -173,34 +174,4 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
-async function getUserCubes() {
-  const url = "http://localhost:3000/get_user_cubes";
-  const data = {
-    token: token
-  };
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST', headers: {
-        'Content-Type': 'application/json'
-      }, body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch user cubes');
-    }
-
-    const userCubes = await response.json();
-
-    // Mapujemy odpowiedź JSON tylko do potrzebnych pól
-    const cubesData = userCubes.map(cube => ({
-      Mac: cube.Mac, Cube_users_ID: cube.Cube_users_ID
-    }));
-
-    return cubesData;
-
-  } catch (error) {
-    console.error('Error fetching user cubes:', error);
-    throw error; // Ponowne rzucenie błędu dla obsługi przez wywołującego
-  }
-}

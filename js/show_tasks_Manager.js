@@ -10,7 +10,7 @@ class TaskManager {
     this.loadMoreUnassignedClicked = false;
   }
 
-  addTask(ProjectID, name, cubeID = "", side = 0, time = 0) {
+  addTask(ProjectID, name, cubeID = "", side = -1, time = 0) {
     const task = new Task(ProjectID, cubeID, side, name, time);
     this.tasks.push(task);
   }
@@ -40,7 +40,7 @@ class TaskManager {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token })
+        body: JSON.stringify({token})
       });
 
       if (!response.ok) {
@@ -74,6 +74,7 @@ class TaskManager {
   generateInitialTasks() {
     this.getTheProjects();
   }
+
 
   handleLoadMore() {
     this.loadMoreAssignedBtn.addEventListener('click', () => {
@@ -165,13 +166,14 @@ class TaskManager {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  const taskManager = new TaskManager();
   const tasksContainer = document.getElementById('tasks-container');
 
   const form = taskManager.createForm();
   tasksContainer.appendChild(form);
 
   taskManager.generateInitialTasks();
-  taskManager.handleLoadMore();
   taskManager.handleAddTask();
+  taskManager.handleLoadMore();
 });
+
+

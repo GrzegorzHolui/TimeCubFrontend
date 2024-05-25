@@ -40,14 +40,27 @@
 <script src="js/show_tasks_Manager.js"></script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', async function () {
-    const token = localStorage.getItem('token');
+  const taskManager = new TaskManager();
 
-    if (await isTokenValid(token)) {
-      showContent();
-      loadTasks();
+
+  document.addEventListener('DOMContentLoaded', async function () {
+    var token = localStorage.getItem('token');
+
+    if (token == null || token === '' || !(await isTokenValid(token))) {
+      var urlString = window.location.href;
+      var url = new URL(urlString);
+      var tokenToDownload = url.searchParams.get('token');
+
+      if (tokenToDownload) {
+        localStorage.setItem('token', tokenToDownload);
+        console.log('Token został dodany do localStorage.');
+        showContent();
+      } else {
+        console.error('Nie znaleziono tokena w adresie URL.');
+        showLogin();
+      }
     } else {
-      showLogin();
+      showContent();
     }
 
     function showContent() {
@@ -61,35 +74,8 @@
         window.location.href = 'http://localhost:3000/auth/google';
       });
     }
-
-    async function isTokenValid(token) {
-      const url = "http://localhost:3000/get_user_cubes";
-      const data = { token: token };
-
-      try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
-
-        const responseData = await response.json();
-        return response.ok && responseData.success !== false;
-      } catch (error) {
-        console.error('Error validating token:', error);
-        return false;
-      }
-    }
-
-    async function loadTasks() {
-      const taskManager = new TaskManager();
-      taskManager.generateInitialTasks();
-      taskManager.handleLoadMore();
-      taskManager.handleAddTask();
-    }
   });
+
 </script>
 
 </body>
