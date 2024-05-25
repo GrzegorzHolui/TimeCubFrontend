@@ -62,18 +62,18 @@ button[type="submit"]:hover,
 }
 
 #tasks-container {
-  display: none;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Set number of columns */
+  gap: 10px; /* Gap between grid items */
   margin-top: 20px;
 }
 
 .task {
   border: 1px solid #ccc;
   padding: 10px;
-  margin: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
 }
 
 .task .button-container {
@@ -305,23 +305,6 @@ button[type="submit"]:hover,
   color: black;
 }
 
-/*.history {*/
-/*  position: fixed;*/
-/*  top: 60px;*/
-/*  left: 20px;*/
-/*  width: 40%;*/
-/*  min-height: 10vh;*/
-/*  max-height: 50vh;*/
-/*  overflow-y: auto;*/
-/*  background-color: #fff;*/
-/*  border: 1px solid #ccc;*/
-/*  border-radius: 5px;*/
-/*  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
-/*  padding: 10px;*/
-/*  display: none;*/
-/*  z-index: 1000;*/
-/*}*/
-
 .history {
   position: fixed;
   top: 10px;
@@ -337,3 +320,14 @@ button[type="submit"]:hover,
   z-index: 1000;
 }
 
+
+#unassigned-tasks-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Set number of columns */
+  gap: 10px; /* Gap between grid items */
+  margin-top: 20px;
+}
+
+.unassigned-task {
+  background-color: #e0e0e0; /* light gray color */
+}

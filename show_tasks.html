@@ -10,13 +10,17 @@
 <body>
 
 <div id="content-container" class="container">
-
   <button id="logout-btn" class="logout-btn">Logout</button>
   <h2>Task Manager</h2>
   <a href="settings.html" class="menu-option">Settings</a>
   <button id="add-task-btn" class="add-task-btn">Add Task</button>
   <button id="refresh-window-btn" class="refresh-window-btn">Refresh</button>
-  <div id="tasks-container"></div>
+
+  <h3>Assigned Tasks</h3>
+  <div id="tasks-container" class="tasks-container"></div>
+
+  <h3>Unassigned Tasks</h3>
+  <div id="unassigned-tasks-container" class="tasks-container"></div>
   <button id="load-more-btn">Load More</button>
 </div>
 
@@ -24,28 +28,7 @@
   <button id="login-btn" class="login-btn">Login with Google</button>
 </div>
 
-<script>
-  const token = localStorage.getItem('token');
-  function getQueryParams() {
-    const params = {};
-    window.location.search.substring(1).split('&').forEach(pair => {
-      const [key, value] = pair.split('=');
-      params[key] = decodeURIComponent(value || '');
-    });
-    return params;
-  }
-
-  // Extract token from URL
-  const params = getQueryParams();
-  if (params.token) {
-    localStorage.setItem('token', params.token);
-    console.log('Token stored:', params.token);
-    window.history.replaceState({}, document.title, '/');
-  }
-</script>
-<!--<script src="js/taskHtmlGenerator.js"></script>-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.5.0/frappe-gantt.min.js"></script>
-
 <script src="js/Task.js"></script>
 <script src="js/fetches.js"></script>
 <script src="js/show_tasks_Manager.js"></script>
@@ -56,6 +39,7 @@
 
     if (await isTokenValid(token)) {
       showContent();
+      loadTasks();
     } else {
       showLogin();
     }
@@ -63,7 +47,6 @@
     function showContent() {
       document.getElementById('content-container').style.display = 'block';
       document.getElementById('login-container').style.display = 'none';
-      document.getElementById('tasks-container').style.display = 'grid';
     }
 
     function showLogin() {
@@ -73,110 +56,9 @@
       });
     }
 
-    async function handleExpiredToken() {
-      localStorage.removeItem('token');
-      showLogin();
-    }
-
-    async function fetchWithToken(url, options) {
-      if (!options.headers) {
-        options.headers = {};
-      }
-      const token = localStorage.getItem('token');
-      options.body = JSON.stringify({ ...JSON.parse(options.body || '{}'), token });
-
-      const response = await fetch(url, options);
-
-      if (response.status === 401 || (response.ok && (await response.json()).code === 101)) { // Token is invalid or expired
-        await handleExpiredToken();
-        throw new Error('Token expired or invalid');
-      } else if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error('Network response was not ok');
-      }
-    }
-
-    document.getElementById('Add-Cube').addEventListener('click', async function (event) {
-      event.preventDefault();
-
-      const macAddress = document.getElementById('macAddress').value;
-      const cubeId = document.getElementById('cubeId').value;
-
-      if (!macAddress || !cubeId) {
-        showMessage('Please fill in all fields and make sure you are logged in', 'error');
-        return;
-      }
-
-      const newCube = { macAddress, cubeId };
-
-      try {
-        const data = await fetchWithToken('http://localhost:3000/add_cube', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(newCube)
-        });
-
-        showMessage('Cube added successfully', 'success');
-        document.getElementById('addedCube').textContent = `Added Cube: ${macAddress}, ${cubeId}`;
-      } catch (error) {
-        console.error('Error adding cube:', error);
-        showMessage('Error adding cube', 'error');
-      }
-    });
-
-    document.getElementById('Remove-Cube').addEventListener('click', async function (event) {
-      event.preventDefault();
-
-      const macAddress = document.getElementById('macAddress').value;
-      const cubeId = document.getElementById('cubeId').value;
-
-      if (!macAddress || !cubeId) {
-        showMessage('Please fill in all fields and make sure you are logged in', 'error');
-        return;
-      }
-
-      const cubeToRemove = { macAddress, cubeId };
-
-      try {
-        const data = await fetchWithToken('http://localhost:3000/remove_cube', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(cubeToRemove)
-        });
-
-        showMessage('Cube removed successfully', 'success');
-        document.getElementById('addedCube').textContent = `Removed Cube: ${macAddress}, ${cubeId}`;
-      } catch (error) {
-        console.error('Error removing cube:', error);
-        showMessage('Error removing cube', 'error');
-      }
-    });
-
-    function showMessage(message, type) {
-      const messageDiv = document.getElementById('message');
-      messageDiv.textContent = message;
-      messageDiv.className = type;
-    }
-
-    document.getElementById('logout-btn').addEventListener('click', function() {
-      localStorage.removeItem('token');
-      window.location.reload();
-    });
-
-    document.getElementById('refresh-window-btn').addEventListener('click', function() {
-      window.location.reload();
-    });
-
     async function isTokenValid(token) {
       const url = "http://localhost:3000/get_user_cubes";
-      const data = {
-        token: token
-      };
+      const data = { token: token };
 
       try {
         const response = await fetch(url, {
@@ -188,22 +70,21 @@
         });
 
         const responseData = await response.json();
-
-        // Assuming the API returns an object with a success property
-        if (response.ok && responseData.success !== false) {
-          return true;
-        } else {
-          return false;
-        }
+        return response.ok && responseData.success !== false;
       } catch (error) {
         console.error('Error validating token:', error);
         return false;
       }
     }
+
+    async function loadTasks() {
+      const taskManager = new TaskManager();
+      taskManager.generateInitialTasks();
+      taskManager.handleLoadMore();
+      taskManager.handleAddTask();
+    }
   });
 </script>
-
-
 
 </body>
 </html>

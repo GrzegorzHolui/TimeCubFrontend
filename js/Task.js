@@ -1,3 +1,5 @@
+const token = localStorage.getItem('token')
+
 class Task {
   constructor(ProjectID, CubeID, Side, Name, Time = 0) {
     this.ProjectID = ProjectID;
@@ -10,6 +12,10 @@ class Task {
   createTaskElement() {
     const taskDiv = document.createElement('div');
     taskDiv.classList.add('task');
+
+    if (this.Side === -1) {
+      taskDiv.classList.add('unassigned-task');
+    }
 
     const nameElement = document.createElement('h3');
     nameElement.textContent = this.Name;
@@ -77,12 +83,12 @@ class Task {
 
   async showHistory(project_id) {
     const url = "http://localhost:3000/get_events";
-    const data = { token: token, project_id: project_id };
+    const data = {token: token, project_id: project_id};
 
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data),
       });
 
@@ -133,28 +139,22 @@ class Task {
       // Prepare data for Gantt chart
       const tasks = historyData.map(event => {
         const utcTime = new Date(event.Time);
-        const localTime = new Date(utcTime.toLocaleString('en-US', { timeZone: 'Europe/Warsaw' }));
+        const localTime = new Date(utcTime.toLocaleString('en-US', {timeZone: 'Europe/Warsaw'}));
         const endDate = new Date(localTime.getTime() + 3600000); // Add 1 hour to end time
 
         return {
           id: event.EventID,
           name: event.Name,
-          start: localTime.toISOString().slice(0, 10), // YYYY-MM-DD format
-          end: endDate.toISOString().slice(0, 10), // YYYY-MM-DD format
+          start: localTime.toISOString().slice(0, 10), // YYYY-MM-DD
+          end: endDate.toISOString().slice(0, 10), // YYYY-MM-DD
           progress: 100,
         };
       });
 
-      // Create an SVG container for the Gantt chart
-      const svgContainer = document.createElement('div');
-      svgContainer.id = 'gantt';
-      svgContainer.style.width = '100%';
-      svgContainer.style.height = '100%';
-      historyDiv.appendChild(svgContainer);
-
-      // Initialize the Gantt chart
-      new Gantt("#gantt", tasks);
-
+      const gantt = new Gantt(historyDiv, tasks, {
+        view_mode: 'Day',
+        language: 'en',
+      });
     } catch (error) {
       console.error('Error fetching history:', error);
     }
@@ -229,7 +229,7 @@ class Task {
       });
     }
 
-    populateCubeIdSelect();
+    await populateCubeIdSelect();
 
     editPanel.appendChild(cubeIdSelect);
     editPanel.appendChild(macSelect);
@@ -312,3 +312,6 @@ function createConfirmationIfUserWantToDelteTask() {
   document.body.appendChild(modalOverlay);
   return {modalOverlay, confirmBtn, cancelBtn};
 }
+
+
+

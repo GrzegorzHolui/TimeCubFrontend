@@ -1,8 +1,9 @@
 class TaskManager {
   constructor() {
     this.tasksContainer = document.getElementById('tasks-container');
+    this.unassignedTasksContainer = document.getElementById('unassigned-tasks-container');
+    this.addTaskBtn = document.getElementById('add-task-btn');
     this.loadMoreBtn = document.getElementById('load-more-btn');
-    this.addTaskBtn = document.getElementById('add-task-btn'); // New button reference
     this.tasks = []
     this.loadMoreClicked = false;
   }
@@ -14,11 +15,17 @@ class TaskManager {
 
   renderTasks() {
     this.tasksContainer.innerHTML = '';
+    this.unassignedTasksContainer.innerHTML = '';
+
     const tasksToShow = this.loadMoreClicked ? this.tasks : this.tasks.slice(0, 6);
 
     tasksToShow.forEach(task => {
       const taskElement = task.createTaskElement();
-      this.tasksContainer.appendChild(taskElement);
+      if (task.Side === -1) {
+        this.unassignedTasksContainer.appendChild(taskElement);
+      } else {
+        this.tasksContainer.appendChild(taskElement);
+      }
     });
   }
 
@@ -176,3 +183,4 @@ document.addEventListener('DOMContentLoaded', function () {
   taskManager.handleLoadMore();
   taskManager.handleAddTask();
 });
+
