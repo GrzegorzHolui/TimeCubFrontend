@@ -1,12 +1,13 @@
+const link = window.link
 const token = localStorage.getItem('token')
-
 class Task {
-  constructor(ProjectID, CubeID, Side, Name, Time = 0) {
+  constructor(ProjectID, CubeID, Side, Name, Time, Mac) {
     this.ProjectID = ProjectID;
     this.CubeID = CubeID;
     this.Side = Side;
     this.Name = Name;
     this.Time = Time;
+    this.Mac = Mac;
   }
 
   createTaskElement() {
@@ -82,7 +83,7 @@ class Task {
   }
 
   async showHistory(project_id) {
-    const url = "http://localhost:3000/get_events";
+    const url = link + "/get_events";
     const data = {token: token, project_id: project_id};
 
     try {
@@ -252,13 +253,15 @@ class Task {
     saveBtn.addEventListener('click', async () => {
       const newCubeID = cubeIdSelect.value;
       const newSide = sideInput.value;
+      // this.Name = nameInput.value;
       this.CubeID = newCubeID;
       this.Side = newSide;
+      this.Mac = macSelect.value;
       this.updateTask(taskDiv);
 
       await setProjectActive(this.ProjectID, this.CubeID, macSelect.value, this.Side);
       document.body.removeChild(editPanel);
-      taskManager.renderTasks();
+      taskManager.generateInitialTasks();
       overlay.style.display = 'none';
 
     });

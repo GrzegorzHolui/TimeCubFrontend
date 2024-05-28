@@ -19,13 +19,17 @@ class TaskManager {
     this.tasksContainer.innerHTML = '';
     this.unassignedTasksContainer.innerHTML = '';
 
-    const assignedTasksToShow = this.loadMoreAssignedClicked ? this.tasks.filter(task => task.Side !== -1) : this.tasks.filter(task => task.Side !== -1).slice(0, 6);
+    const assignedTasks = this.tasks.filter(task => task.Side !== -1);
+    const unassignedTasks = this.tasks.filter(task => task.Side === -1);
+
+    const assignedTasksToShow = this.loadMoreAssignedClicked ? assignedTasks : assignedTasks.slice(0, 6);
+    const unassignedTasksToShow = this.loadMoreUnassignedClicked ? unassignedTasks : unassignedTasks.slice(0, 6);
+
     assignedTasksToShow.forEach(task => {
       const taskElement = task.createTaskElement();
       this.tasksContainer.appendChild(taskElement);
     });
 
-    const unassignedTasksToShow = this.loadMoreUnassignedClicked ? this.tasks.filter(task => task.Side === -1) : this.tasks.filter(task => task.Side === -1).slice(0, 6);
     unassignedTasksToShow.forEach(task => {
       const taskElement = task.createTaskElement();
       this.unassignedTasksContainer.appendChild(taskElement);
@@ -35,7 +39,8 @@ class TaskManager {
   async getTheProjects() {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://localhost:3000/get_user_projects', {
+      const url = link + '/get_user_projects';
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -54,7 +59,7 @@ class TaskManager {
       }
 
       const data = await response.json();
-
+      this.tasks = [];
       // Assuming the response data is an array of projects/tasks
       data.forEach(project => {
         const ProjectID = project.ProjectID; // Replace with actual data fields from your API response
@@ -75,15 +80,18 @@ class TaskManager {
     this.getTheProjects();
   }
 
-
   handleLoadMore() {
+    let btnAssigned = document.getElementById("load-more-assigned-btn");
+    let btnUnAssigned = document.getElementById("load-more-unassigned-btn");
     this.loadMoreAssignedBtn.addEventListener('click', () => {
-      this.loadMoreAssignedClicked = true;
+      this.loadMoreAssignedClicked = !this.loadMoreAssignedClicked;
+      this.loadMoreAssignedClicked === false ? btnAssigned.textContent = 'Show More' : btnAssigned.textContent = 'Show Less'
       this.renderTasks();
     });
 
     this.loadMoreUnassignedBtn.addEventListener('click', () => {
-      this.loadMoreUnassignedClicked = true;
+      this.loadMoreUnassignedClicked = !this.loadMoreUnassignedClicked;
+      this.loadMoreUnassignedClicked === false ? btnUnAssigned.textContent = 'Show More' : btnUnAssigned.textContent = 'Show Less'
       this.renderTasks();
     });
   }
@@ -166,6 +174,8 @@ class TaskManager {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  const taskManager = new TaskManager();
+
   const tasksContainer = document.getElementById('tasks-container');
 
   const form = taskManager.createForm();
@@ -175,5 +185,3 @@ document.addEventListener('DOMContentLoaded', function () {
   taskManager.handleAddTask();
   taskManager.handleLoadMore();
 });
-
-

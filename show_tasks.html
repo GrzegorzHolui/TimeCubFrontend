@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/show_tasks.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.5.0/frappe-gantt.css">
 </head>
+<script src="config.js"></script>
 <body>
 
 <div id="content-container" class="container">
@@ -50,10 +51,10 @@
       var urlString = window.location.href;
       var url = new URL(urlString);
       var tokenToDownload = url.searchParams.get('token');
-
       if (tokenToDownload) {
         localStorage.setItem('token', tokenToDownload);
         console.log('Token został dodany do localStorage.');
+        location.reload();
         showContent();
       } else {
         console.error('Nie znaleziono tokena w adresie URL.');
@@ -71,7 +72,7 @@
     function showLogin() {
       document.getElementById('login-container').style.display = 'block';
       document.getElementById('login-btn').addEventListener('click', function () {
-        window.location.href = 'http://localhost:3000/auth/google';
+        window.location.href = link + '/auth/google';
       });
     }
   });

@@ -1,5 +1,6 @@
 async function getUserCubes() {
-  const url = "http://localhost:3000/get_user_cubes";
+  const url = link + "/get_user_cubes";
+  console.log(url)
   const data = {
     token: token
   };
@@ -31,7 +32,7 @@ async function getUserCubes() {
 }
 
 async function saveTaskToServer(taskName) {
-  const url = "http://localhost:3000/add_project";
+  const url = link + "/add_project";
   const data = {
     token: token, name: taskName
   };
@@ -56,7 +57,7 @@ async function saveTaskToServer(taskName) {
 }
 
 async function setProjectActive(projectId, cubeId, cubeMac, wall) {
-  const url = "http://localhost:3000/set_project_active";
+  const url = link + "/set_project_active";
   const data = {
     token: token, project_id: projectId, cube_mac: cubeMac, cube_id: cubeId, side: wall
   };
@@ -84,7 +85,7 @@ async function setProjectActive(projectId, cubeId, cubeMac, wall) {
 }
 
 async function removeProject(project_id) {
-  const url = "http://localhost:3000/remove_project";
+  const url = link + "/remove_project";
   const data = {
     token: token, project_id: project_id
   };
@@ -109,7 +110,7 @@ async function removeProject(project_id) {
 }
 
 async function isTokenValid(token) {
-  const url = "http://localhost:3000/get_user_cubes";
+  const url = link + "/get_user_cubes";
   const data = {
     token: token
   };
@@ -125,7 +126,6 @@ async function isTokenValid(token) {
 
     const responseData = await response.json();
 
-    // Assuming the API returns an object with a success property
     if (response.ok && responseData.success !== false) {
       return true;
     } else {

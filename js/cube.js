@@ -26,12 +26,15 @@ class CubeList {
 
   async init() {
     this.cubes = await getUserCubes();
+    console.log(this.cubes)
     this.populateSelectOptions();
   }
 
+
   async addCube(cube) {
     try {
-      const response = await fetch('http://localhost:3000/add_cube', {
+      const url = link + '/add_cube';
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -45,16 +48,15 @@ class CubeList {
       const responseData = await response.json();
       console.log('Response from server:', responseData);
       this.displayCube(cube, 'add');
-      showMessage('Kostka dodana pomyślnie', 'success');
     } catch (error) {
       console.error('Error adding Cube to server:', error.message);
-      showMessage('Błąd podczas dodawania kostki', 'error');
     }
   }
 
   async removeCube(cube) {
     try {
-      const response = await fetch('http://localhost:3000/remove_cube', {
+      const url = link + '/remove_cube';
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -125,6 +127,7 @@ class CubeList {
       cubeIdSelect.appendChild(option);
     });
   }
+
 }
 
 const cubeList = new CubeList();
@@ -165,13 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const newCube = new Cube(macSelect, cubeIdSelect);
     await cubeList.removeCube(newCube);
     cubeForm.reset();
-  });
-
-  function showMessage(message, type) {
-    messageDiv.textContent = message;
-    messageDiv.className = type;
-    messageDiv.style.display = 'block';
-  }
+  })
 });
 
 
