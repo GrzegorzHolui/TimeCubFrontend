@@ -1,5 +1,6 @@
 const link = window.link
 const token = localStorage.getItem('token')
+
 class Task {
   constructor(ProjectID, CubeID, Side, Name, Time, Mac) {
     this.ProjectID = ProjectID;
@@ -259,7 +260,12 @@ class Task {
       this.Mac = macSelect.value;
       this.updateTask(taskDiv);
 
-      await setProjectActive(this.ProjectID, this.CubeID, macSelect.value, this.Side);
+      let result = await setProjectActive(this.ProjectID, this.CubeID, macSelect.value, this.Side);
+      console.log("result  " + result)
+      if (!result) {
+        alert("Multiple projects on single cube's side")
+      }
+
       document.body.removeChild(editPanel);
       taskManager.generateInitialTasks();
       overlay.style.display = 'none';
